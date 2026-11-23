@@ -1,0 +1,19 @@
+name: Validar HTML e JavaScript
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o projeto
+        uses: actions/checkout@v4
+      - name: Conferir HTML, canvas, controles e sintaxe JS
+        run: python3 tools/verificar_html.py index.html
