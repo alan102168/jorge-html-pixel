@@ -34,6 +34,76 @@ button{background:#ffd15e;border:0;border-radius:9px;padding:13px 23px;font-size
   #botoes {margin:4px;gap:5px}
   #botoes button {padding:6px 10px;font-size:13px}
 }
+
+/* Responsividade para monitores, TVs e notebooks. */
+/* A proporcao original permanece no modo janela, sem cortar a pista. */
+#telaCheia {
+  padding:7px 12px;
+  min-height:36px;
+  background:#124b68;
+  color:#fff;
+  border:1px solid #5ba8c7;
+  border-radius:8px;
+  font-size:clamp(11px,1.4vw,14px);
+}
+@media (min-width:900px) {
+  body > p {display:none}
+  #area {
+    width:min(calc(100vw - 20px), calc((100dvh - 158px)*1.8));
+    max-width:none;
+    margin-inline:auto;
+  }
+  #botoes {margin:6px auto}
+}
+/* Ao expandir, a tela do jogo preenche todo o monitor, sem bordas laterais. */
+html:fullscreen, html:fullscreen body {
+  width:100%; height:100%; margin:0; padding:0; overflow:hidden;
+  background:#14202d;
+}
+html:fullscreen body > h1,
+html:fullscreen body > p,
+html:fullscreen #regiao,
+html:fullscreen #botoes {display:none}
+html:fullscreen #area {
+  position:fixed; inset:0;
+  width:100vw !important;
+  height:100dvh !important;
+  max-width:none !important;
+  margin:0;
+  aspect-ratio:auto !important;
+  border:0;
+}
+html:fullscreen #jogo {
+  width:100%;height:100%;
+  aspect-ratio:auto;
+  border:0;border-radius:0;
+}
+html:fullscreen #menu {border-radius:0}
+html:fullscreen #hud {
+  position:fixed;
+  z-index:100;
+  top:5px;right:8px;
+  margin:0;
+  justify-content:flex-end;
+  max-width:calc(100vw - 16px);
+  pointer-events:none;
+}
+html:fullscreen #hud button {pointer-events:auto}
+html:fullscreen #hud span {
+  background:rgba(14,29,45,.8);
+  font-size:clamp(11px,1.2vw,16px);
+}
+/* No celular, os comandos tacteis continuam disponiveis na tela cheia. */
+@media (pointer:coarse) {
+  html:fullscreen #botoes {
+    display:grid;
+    position:fixed;z-index:120;
+    bottom:8px;left:50%;transform:translateX(-50%);
+    width:min(96vw,720px);
+    margin:0;
+  }
+  html:fullscreen #botoes button {background:rgba(255,209,94,.88)}
+}
 </style>
 </head>
 <body>
@@ -44,6 +114,7 @@ button{background:#ffd15e;border:0;border-radius:9px;padding:13px 23px;font-size
   <span>📦 Entregas <b id="entregas">0</b></span>
   <span>🔥 Fase <b id="fase">1</b></span>
   <span>🚛 <b id="velocidade">0</b> km/h</span>
+  <button id="telaCheia" type="button" title="Expandir o jogo para a tela inteira">⛶ Tela cheia</button>
 </div>
 <div id="regiao">📍 Copacabana</div>
 <div id="area">
@@ -76,6 +147,22 @@ ctx.imageSmoothingEnabled=false;
 telaCtx.imageSmoothingEnabled=false;
 const $=id=>document.getElementById(id);
 const W=900,H=500;
+// Tela cheia opcional para o PC/HDMI. Escape sai do modo expandido.
+const telaCheia=document.getElementById("telaCheia");
+telaCheia.addEventListener("click", async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen)
+      await document.documentElement.requestFullscreen();
+    else telaCheia.title="Este navegador nao permite tela cheia";
+  } catch (erro) {
+    console.warn("Nao foi possivel ativar tela cheia",erro);
+    telaCheia.title="Tela cheia indisponivel neste navegador";
+  }
+});
+document.addEventListener("fullscreenchange",()=>{
+  telaCheia.textContent=document.fullscreenElement?"⤢ Sair":"⛶ Tela cheia";
+});
 
 const regioes=[
   {nome:"Copacabana",ceu:"#6ec6f5",solo:"#e0a9b8",gr:"#e6d49b",gr2:"#d9c488"},
